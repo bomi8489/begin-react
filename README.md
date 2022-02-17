@@ -449,24 +449,24 @@
     import React, { useState } from 'react';
 
     function InputSample() {
-    const onChange = (e) => {
-    };
+        const onChange = (e) => {
+        };
 
-    const onReset = () => {
-    };
+        const onReset = () => {
+        };
 
 
-    return (
-        <div>
-        <input placeholder="이름" />
-        <input placeholder="닉네임" />
-        <button onClick={onReset}>초기화</button>
-        <div>
-            <b>값: </b>
-            이름 (닉네임)
-        </div>
-        </div>
-    );
+        return (
+            <div>
+            <input placeholder="이름" />
+            <input placeholder="닉네임" />
+            <button onClick={onReset}>초기화</button>
+            <div>
+                <b>값: </b>
+                이름 (닉네임)
+            </div>
+            </div>
+        );
     }
 
     export default InputSample;
@@ -480,40 +480,40 @@
     import React, { useState } from 'react';
 
     function InputSample() {
-    const [inputs, setInputs] = useState({
-        name: '',
-        nickname: ''
-    });
-
-    const { name, nickname } = inputs; // 비구조화 할당을 통해 값 추출
-
-    const onChange = (e) => {
-        const { value, name } = e.target; // 우선 e.target 에서 name 과 value 를 추출
-        setInputs({
-        ...inputs, // 기존의 input 객체를 복사한 뒤
-        [name]: value // name 키를 가진 값을 value 로 설정
+        const [inputs, setInputs] = useState({
+            name: '',
+            nickname: ''
         });
-    };
 
-    const onReset = () => {
-        setInputs({
-        name: '',
-        nickname: '',
-        })
-    };
+        const { name, nickname } = inputs; // 비구조화 할당을 통해 값 추출
+
+        const onChange = (e) => {
+            const { value, name } = e.target; // 우선 e.target 에서 name 과 value 를 추출
+            setInputs({
+            ...inputs, // 기존의 input 객체를 복사한 뒤
+            [name]: value // name 키를 가진 값을 value 로 설정
+            });
+        };
+
+        const onReset = () => {
+            setInputs({
+            name: '',
+            nickname: '',
+            })
+        };
 
 
-    return (
-        <div>
-        <input name="name" placeholder="이름" onChange={onChange} value={name} />
-        <input name="nickname" placeholder="닉네임" onChange={onChange} value={nickname}/>
-        <button onClick={onReset}>초기화</button>
-        <div>
-            <b>값: </b>
-            {name} ({nickname})
-        </div>
-        </div>
-    );
+        return (
+            <div>
+            <input name="name" placeholder="이름" onChange={onChange} value={name} />
+            <input name="nickname" placeholder="닉네임" onChange={onChange} value={nickname}/>
+            <button onClick={onReset}>초기화</button>
+            <div>
+                <b>값: </b>
+                {name} ({nickname})
+            </div>
+            </div>
+        );
     }
 
     export default InputSample;
@@ -523,9 +523,9 @@
     ```
     inputs[name] = value;
     ```
-    이런식으로 직접 수정하면 안됨
+    이런식으로 직접 수정하면 안된다
 
-    대신, 새로운 객체를 만들어서 새로운 객체에 변화를 주고, 이를 상태로 사용해주어야 함
+    대신, 새로운 객체를 만들어서 새로운 객체에 변화를 주고, 이를 상태로 사용해주어야 한다
     ```
     setInputs({
         ...inputs,
@@ -537,11 +537,280 @@
 
     이러한 작업을 "불변성을 지킨다" 라고 부른다. 불변성을 지켜주어야만 리액트 컴포넌트에서 상태가 업데이트가 됐음을 감지할 수 있고 이에 따라 필요한 리렌더링이 진행된다. 만약 `inputs[name] = value` 이런식으로 기존 상태를 직접 수정하게 되면, 값을 바꿔도 리렌더링이 되지 않는다
 
-    추가적으로 리액트에서는 불변성을 지켜주어야만 컴포넌트 업데이트 성능 최적화를 제대로 할 수 있다.
+    추가적으로 리액트에서는 불변성을 지켜주어야만 컴포넌트 업데이트 성능 최적화를 제대로 할 수 있다
 
-    요약 : 리액트에서 객체를 업데이트하게 될 때에는 기존 객체를 직접 수정하면 안되고, 새로운 객체를 만들어서 새 객체에 변화를 주어야 함
+    요약 : 리액트에서 객체를 업데이트하게 될 때에는 기존 객체를 직접 수정하면 안되고, 새로운 객체를 만들어서 새 객체에 변화를 주어야 한다
 
 
 <br><br>
 
-## ㅇㅇ
+## useRef로 특정 DOM 선택하기
+
+- JavaScript 를 사용 할 때에는, 우리가 특정 DOM 을 선택해야 하는 상황에 getElementById, querySelector 같은 DOM Selector 함수를 사용해서 DOM 을 선택한다
+
+    리액트를 사용하는 프로젝트에서도 가끔씩 DOM 을 직접 선택해야 하는 상황이 발생 할 때도 있다
+
+    그럴 땐, 리액트에서 `ref` 라는 것을 사용한다
+
+    함수형 컴포넌트에서 `ref` 를 사용 할 때에는 `useRef` 라는 Hook 함수를 사용한다
+
+    <br>
+    InputSample.js
+
+    ```
+    import React, { useState, useRef } from 'react';
+
+    function InputSample() {
+        const [inputs, setInputs] = useState({
+            name: '',
+            nickname: ''
+        });
+        const nameInput = useRef();
+
+        const { name, nickname } = inputs; // 비구조화 할당을 통해 값 추출
+
+        const onChange = e => {
+            const { value, name } = e.target; // 우선 e.target 에서 name 과 value 를 추출
+            setInputs({
+            ...inputs, // 기존의 input 객체를 복사한 뒤
+            [name]: value // name 키를 가진 값을 value 로 설정
+            });
+        };
+
+        const onReset = () => {
+            setInputs({
+            name: '',
+            nickname: ''
+            });
+            nameInput.current.focus();
+        };
+
+        return (
+            <div>
+            <input
+                name="name"
+                placeholder="이름"
+                onChange={onChange}
+                value={name}
+                ref={nameInput}
+            />
+            <input
+                name="nickname"
+                placeholder="닉네임"
+                onChange={onChange}
+                value={nickname}
+            />
+            <button onClick={onReset}>초기화</button>
+            <div>
+                <b>값: </b>
+                {name} ({nickname})
+            </div>
+            </div>
+        );
+    }
+
+    export default InputSample;
+    ```
+
+    `useRef()` 를 사용하여 `Ref` 객체를 만들고, 이 객체를 우리가 선택하고 싶은 DOM 에 `ref` 값으로 설정해주어야 한다. 그러면, `Ref` 객체의 `.current` 값은 우리가 원하는 DOM 을 가르키게 된다
+
+## 배열 렌더링하기
+- 리액트에서 배열을 렌더링하는 방법을 알아보자
+
+    이러한 배열이 있다고 가정하자
+    ```
+    const users = [
+    {
+        id: 1,
+        username: 'velopert',
+        email: 'public.velopert@gmail.com'
+    },
+    {
+        id: 2,
+        username: 'tester',
+        email: 'tester@example.com'
+    },
+    {
+        id: 3,
+        username: 'liz',
+        email: 'liz@example.com'
+    }
+    ];
+    ```
+
+    컴포넌트를 재사용 할 수 있도록 새로 만들어주자
+
+    <br>
+    UserList.js
+
+    ```
+    import React from 'react';
+
+    function User({ user }) {
+        return (
+            <div>
+            <b>{user.username}</b> <span>({user.email})</span>
+            </div>
+        );
+    }
+
+    function UserList() {
+        const users = [
+            {
+            id: 1,
+            username: 'velopert',
+            email: 'public.velopert@gmail.com'
+            },
+            {
+            id: 2,
+            username: 'tester',
+            email: 'tester@example.com'
+            },
+            {
+            id: 3,
+            username: 'liz',
+            email: 'liz@example.com'
+            }
+        ];
+
+        return (
+            <div>
+            <User user={users[0]} />
+            <User user={users[1]} />
+            <User user={users[2]} />
+            </div>
+        );
+    }
+
+    export default UserList;
+    ```
+
+    배열이 고정적이라면 상관없겟지만, 배열의 인덱스를 하나하나 조회해가면서 렌더링하는 방법은 동적인 배열을 렌더링하지 못한다
+
+    동적인 배열을 렌더링해야 할 때에는 자바스크립트 배열의 내장함수 `map()` 을 사용한다
+
+    `map()` 함수는 배열안에 있는 각 원소를 변환하여 새로운 배열을 만들어준다. 리액트에서 동적인 배열을 렌더링해야 할 때는 이 함수를 사용하여 일반 데이터 배열을 리액트 엘리먼트로 이루어진 배열로 변환해주면 된다
+
+    <br>
+    UserList.js
+
+    ```
+    import React from 'react';
+
+    function User({ user }) {
+        return (
+            <div>
+            <b>{user.username}</b> <span>({user.email})</span>
+            </div>
+        );
+    }
+
+    function UserList() {
+        const users = [
+            {
+            id: 1,
+            username: 'velopert',
+            email: 'public.velopert@gmail.com'
+            },
+            {
+            id: 2,
+            username: 'tester',
+            email: 'tester@example.com'
+            },
+            {
+            id: 3,
+            username: 'liz',
+            email: 'liz@example.com'
+            }
+        ];
+
+        return (
+            <div>
+            {users.map(user => (
+                <User user={user} />
+            ))}
+            </div>
+        );
+    }
+
+    export default UserList;
+    ```
+    
+    리액트에서 배열을 렌더링 할 때에는 key 라는 props 를 설정해야한다. key 값은 각 원소들마다 가지고 있는 고유값으로 설정을 해야한다. 지금의 경우엔 id 가 고유 값이다
+
+    <br>
+    UserList.js
+
+    ```
+    import React from 'react';
+
+    function User({ user }) {
+    return (
+        <div>
+        <b>{user.username}</b> <span>({user.email})</span>
+        </div>
+    );
+    }
+
+    function UserList() {
+    const users = [
+        {
+        id: 1,
+        username: 'velopert',
+        email: 'public.velopert@gmail.com'
+        },
+        {
+        id: 2,
+        username: 'tester',
+        email: 'tester@example.com'
+        },
+        {
+        id: 3,
+        username: 'liz',
+        email: 'liz@example.com'
+        }
+    ];
+
+    return (
+        <div>
+        {users.map(user => (
+            <User user={user} key={user.id} />
+        ))}
+        </div>
+    );
+    }
+
+    export default UserList;
+    ```
+
+    만약 배열 안의 원소가 가지고 있는 고유한 값이 없다면 `map()` 함수를 사용 할 때 설정하는 콜백함수의 두번째 파라미터 `index` 를 `key` 로 사용하면된다.
+
+    ```
+    <div>
+    {users.map((user, index) => (
+        <User user={user} key={index} />
+    ))}
+    </div>
+    ```
+
+    만약에 배열을 렌더링 할 때 `key` 설정을 하지 않게된다면 기본적으로 배열의 `index` 값을 `key` 로 사용하게 되고, 경고메시지가 뜨게 됩니다. 이렇게 경고 메시지가 뜨는 이유는, 각 고유 원소에 `key` 가 있어야만 배열이 업데이트 될 때 효율적으로 렌더링 될 수 있기 때문이다.
+
+    <br>
+
+    
+    ### `정리` 
+    `
+    동적인 배열을 렌더링해야 할 때에는 자바스크립트 배열의 내장함수 map() 을 사용
+    ` 
+    <br>
+    `
+    리액트에서 배열을 렌더링 할 때에는 key 라는 props 를 설정 (고유값)`<br>
+    `
+    고유 원소에 key 가 있어야만 배열이 업데이트 될 때 효율적으로 렌더링
+    `<br>
+    `
+    수정되지 않는 기존의 값은 그대로 두고 원하는 곳에 내용을 삽입하거나 삭제하기 때문
+    `
+
+<br><br>
+## 
