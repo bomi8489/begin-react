@@ -19,17 +19,20 @@ function App() {
     {
       id: 1,
       username: 'velopert',
-      email: 'public.velopert@gmail.com'
+      email: 'public.velopert@gmail.com',
+      active: true
     },
     {
       id: 2,
       username: 'tester',
-      email: 'tester@example.com'
+      email: 'tester@example.com',
+      active: false
     },
     {
       id: 3,
       username: 'liz',
-      email: 'liz@example.com'
+      email: 'liz@example.com',
+      active: false
     }
   ]);
 
@@ -57,6 +60,13 @@ function App() {
     // = user.id 가 id 인 것을 제거함
     setUsers(users.filter(user => user.id !== id));
   };
+  const onToggle = id => {  // 배열의 불변성을 지키면서 업데이트 할 때에도 map 함수 사용
+    setUsers(
+      users.map(user =>
+        user.id === id ? { ...user, active: !user.active } : user
+      )
+    );
+  };
   return (
     <>
       <CreateUser
@@ -66,7 +76,7 @@ function App() {
         onCreate={onCreate}
         nameInput={nameInput} // nameInput Dom에 포커싱
       />
-      <UserList users={users} onRemove={onRemove} />
+      <UserList users={users} onRemove={onRemove} onToggle={onToggle} />
     </>
   );
 }

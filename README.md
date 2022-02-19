@@ -1093,6 +1093,7 @@
     또 다른 방법은 concat 함수를 사용하는 것이다. concat 함수는 기존의 배열을 수정하지 않고, 새로운 원소가 추가된 새로운 배열을 만들어 준다.
 
     <br>
+
     App.js
 
     ```
@@ -1161,6 +1162,8 @@
 
     export default App;
     ```
+
+<br><br>
 
 ## 배열에 항목 제거하기
 - 이번에는 배열에 항목을 제거 할 때는 어떻게 해야 하는지 알아보자
@@ -1284,5 +1287,217 @@
 
     export default App;
     ```
+<br><br>
 
-## 
+## 배열 항목 수정하기
+- 이번에는 배열 항목을 수정하는 방법을 알아보자
+
+    User 컴포넌트에 계정명을 클릭했을때 색상이 초록새으로 바뀌고, 다시 누르면 검정색으로 바뀌도록 구현을 해보자
+
+    App 컴포넌트의 `users` 배열 안의 객체 안에 `active` 라는 속성을 추가한다
+
+    <br>
+    
+    App.js
+
+    ```
+    const [users, setUsers] = useState([
+    {
+      id: 1,
+      username: 'velopert',
+      email: 'public.velopert@gmail.com',
+      active: true
+    },
+    {
+      id: 2,
+      username: 'tester',
+      email: 'tester@example.com',
+      active: false
+    },
+    {
+      id: 3,
+      username: 'liz',
+      email: 'liz@example.com',
+      active: false
+    }
+    ```
+
+     User 컴포넌트에서 방금 넣어준 `active` 값에 따라 폰트의 색상을 바꿔주도록 구현을 해보자. 추가적으로, `cursor` 필드를 설정하여 마우스를 올렸을때 커서가 손가락 모양으로 변하도록 해보자
+
+     <br>
+
+     UserList.js
+
+     ```
+    import React from 'react';
+
+    function User({ user, onRemove }) {
+    return (
+        <div>
+        <b
+            style={{
+            cursor: 'pointer',
+            color: user.active ? 'green' : 'black'
+            }}
+        >
+            {user.username}
+        </b>
+
+        <span>({user.email})</span>
+        <button onClick={() => onRemove(user.id)}>삭제</button>
+        </div>
+    );
+    }
+
+    function UserList({ users, onRemove }) {
+    return (
+        <div>
+        {users.map(user => (
+            <User user={user} key={user.id} onRemove={onRemove} />
+        ))}
+        </div>
+    );
+    }
+
+    export default UserList;
+    ```
+
+    App.js 에서 `onToggle` 이라는 함수를 구현해보자. 배열의 불변성을 유지하면서 배열을 업데이트 할 때에도 `map` 함수를 사용 할 수 있다
+
+    `id` 값을 비교해서 `id` 가 다르다면 그대로 두고, 같다면 `active` 값을 반전시키도록 구현을 하면 된다
+
+    `onToggle` 함수를 만들어서 UserList 컴포넌트에게 전달해주자
+
+    <br>
+
+    App.js
+
+    ```
+    const onToggle = id => {
+        setUsers(
+            users.map(user =>  // 배열의 불변성을 지키면서 업데이트 할 때에도 map 함수 사용
+                user.id === id ? { ...user, active: !user.active } : user
+            )
+        );
+    };
+    return (
+        <>
+            <CreateUser
+                username={username}
+                email={email}
+                onChange={onChange}
+                onCreate={onCreate}
+            />
+            <UserList users={users} onRemove={onRemove} onToggle={onToggle} />
+        </>
+    );
+    ```
+
+    UserList 컴포넌트에서 onToggle를 받아와서 User 에게 전달해주고, onRemove 를 구현했었던것처럼 onToggle 에 id 를 넣어서 호출해주자
+
+    <br>
+
+    UserList.js
+
+    ```
+    import React from 'react';
+
+    function User({ user, onRemove, onToggle }) {
+    return (
+        <div>
+        <b
+            style={{
+            cursor: 'pointer',
+            color: user.active ? 'green' : 'black'
+            }}
+            onClick={() => onToggle(user.id)}
+        >
+            {user.username}
+        </b>
+        &nbsp;
+        <span>({user.email})</span>
+        <button onClick={() => onRemove(user.id)}>삭제</button>
+        </div>
+    );
+    }
+
+    function UserList({ users, onRemove, onToggle }) {
+    return (
+        <div>
+        {users.map(user => (
+            <User
+            user={user}
+            key={user.id}
+            onRemove={onRemove}
+            onToggle={onToggle}
+            />
+        ))}
+        </div>
+    );
+    }
+
+    export default UserList;
+    ```
+
+<br><br>
+
+## useEffect를 사용하여 마운트/언마운트/업데이트시 할 작업 설정하기
+- 이번에는 `useEffect` 라는 Hook 을 사용하여 컴포넌트가 마운트 됐을 때 (처음 나타났을 때), 언마운트 됐을 때 (사라질 때), 그리고 업데이트 될 때 (특정 props가 바뀔 때) 특정 작업을 처리하는 방법에 대해서 알아보자
+
+    우선 마운트 관리를 해보자
+
+    <br>
+
+    UserList.js
+
+    ```
+    import React, { useEffect } from 'react';
+
+    function User({ user, onRemove, onToggle }) {
+    useEffect(() => {
+        console.log('컴포넌트가 화면에 나타남');
+        return () => {
+        console.log('컴포넌트가 화면에서 사라짐');
+        };
+    }, []);
+    return (
+        <div>
+        <b
+            style={{
+            cursor: 'pointer',
+            color: user.active ? 'green' : 'black'
+            }}
+            onClick={() => onToggle(user.id)}
+        >
+            {user.username}
+        </b>
+        &nbsp;
+        <span>({user.email})</span>
+        <button onClick={() => onRemove(user.id)}>삭제</button>
+        </div>
+    );
+    }
+
+    function UserList({ users, onRemove, onToggle }) {
+    return (
+        <div>
+        {users.map(user => (
+            <User
+            user={user}
+            key={user.id}
+            onRemove={onRemove}
+            onToggle={onToggle}
+            />
+        ))}
+        </div>
+    );
+    }
+
+    export default UserList;
+    ```
+
+    `useEffect` 를 사용 할 때에는 첫번째 파라미터에는 함수, 두번째 파라미터에는 의존값이 들어있는 배열 `deps`을 넣는다. 만약에 `deps` 배열을 비우게 된다면, 컴포넌트가 처음 나타날때에만 `useEffect` 에 등록한 함수가 호출된다
+
+    그리고 `useEffect` 에서는 함수를 반환 할 수 있는데 이를 `cleanup` 함수라고 부른다. `cleanup` 함수는 `useEffect` 에 대한 뒷정리를 해준다고 이해하면 되는데, `deps` 가 비어있는 경우에는 컴포넌트가 사라질 때 `cleanup` 함수가 호출된다
+
+    
