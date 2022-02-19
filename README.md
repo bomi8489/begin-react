@@ -801,7 +801,7 @@
     - scroll 위치
 
     <br>
-    이제 App 컴포넌트에서 useRef 를 사용하여 변수를 관리해볼건데, 용도는 우리가 앞으로 배열에 새 항목을 추가할건데, 새 항목에서 사용 할 고유 id 를 관리하는 용도이다.
+    이제 App 컴포넌트에서 `useRef` 를 사용하여 변수를 관리해볼건데, 용도는 우리가 앞으로 배열에 새 항목을 추가할건데, 새 항목에서 사용 할 고유 id 를 관리하는 용도이다.
     
     `useRef` 를 사용하여 변수를 관리하기 전에 해야 할 작업으로
 
@@ -1155,6 +1155,129 @@
             onCreate={onCreate}
         />
         <UserList users={users} />
+        </>
+    );
+    }
+
+    export default App;
+    ```
+
+## 배열에 항목 제거하기
+- 이번에는 배열에 항목을 제거 할 때는 어떻게 해야 하는지 알아보자
+
+    우선, UserList 에서 각 User 컴포넌트를 보여줄 때, 삭제 버튼을 렌더링 해주자
+
+    <br>
+    UserList.js
+
+    ```
+    import React from 'react';
+
+    function User({ user, onRemove }) {
+    return (
+        <div>
+        <b>{user.username}</b> <span>({user.email})</span>
+        <button onClick={() => onRemove(user.id)}>삭제</button>
+        </div>
+    );
+    }
+
+    function UserList({ users, onRemove }) {
+    return (
+        <div>
+        {users.map(user => (
+            <User user={user} key={user.id} onRemove={onRemove} />
+        ))}
+        </div>
+    );
+    }
+
+    export default UserList;
+    ```
+
+    User 컴포넌트의 삭제 버튼이 클릭 될 때는 `user.id` 값을 앞으로 props 로 받아올 `onRemove` 함수의 파라미터로 넣어서 호출해주어야 한다
+
+    `onRemove`는 "id 가 _인 객체를 삭제하라"는 역할
+
+    이 `onRemove` 함수는 UserList 에서도 전달 받을것이며, 이를 그대로 User 컴포넌트에게 전달해줄것이다
+
+    `onRemove` 함수를 구현해보자. 배열에 있는 항목을 제거할 때에는, 추가할때와 마찬가지로 불변성을 지켜가면서 업데이트를 해주어야 한다
+
+    불변성을 지키면서 특정 원소를 배열에서 제거하기 위해서는 `filter` 배열 내장 함수를 사용하는것이 가장 편합니다. 이 함수는 배열에서 특정 조건이 만족하는 원소들만 추출하여 새로운 배열을 만들어준다
+
+    <br>
+    App.js
+
+    ```
+    import React, { useRef, useState } from 'react';
+    import UserList from './UserList';
+    import CreateUser from './CreateUser';
+
+    function App() {
+    const [inputs, setInputs] = useState({
+        username: '',
+        email: ''
+    });
+    const { username, email } = inputs;
+    const onChange = e => {
+        const { name, value } = e.target;
+        setInputs({
+        ...inputs,
+        [name]: value
+        });
+    };
+    const [users, setUsers] = useState([
+        {
+        id: 1,
+        username: 'velopert',
+        email: 'public.velopert@gmail.com'
+        },
+        {
+        id: 2,
+        username: 'tester',
+        email: 'tester@example.com'
+        },
+        {
+        id: 3,
+        username: 'liz',
+        email: 'liz@example.com'
+        }
+    ]);
+
+    const nameInput = useRef(); // nameInput Dom에 포커싱
+    const nextId = useRef(4);   // 컴포넌트 변수 nextId 선언, 파라미터는 .current의 기본 값
+                                // .current 로 조회, 수정 가능
+    const onCreate = () => {
+        const user = {
+        id: nextId.current,
+        username,
+        email
+        };
+        setUsers([...users, user]);
+
+        setInputs({
+        username: '',
+        email: ''
+        });
+        nextId.current += 1;
+        nameInput.current.focus();
+    };
+
+    const onRemove = id => {
+        // user.id 가 파라미터로 일치하지 않는 원소만 추출해서 새로운 배열을 만듬
+        // = user.id 가 id 인 것을 제거함
+        setUsers(users.filter(user => user.id !== id));
+    };
+    return (
+        <>
+        <CreateUser
+            username={username}
+            email={email}
+            onChange={onChange}
+            onCreate={onCreate}
+            nameInput={nameInput} // nameInput Dom에 포커싱
+        />
+        <UserList users={users} onRemove={onRemove} />
         </>
     );
     }

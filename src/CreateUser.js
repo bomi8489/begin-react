@@ -1,6 +1,6 @@
 import React from 'react';
 
-function CreateUser({ username, email, onChange, onCreate }) {
+function CreateUser({ username, email, onChange, onCreate, nameInput }) {
   return (
     <div>
       <input
@@ -8,6 +8,7 @@ function CreateUser({ username, email, onChange, onCreate }) {
         placeholder="계정명"
         onChange={onChange}
         value={username}
+        ref = {nameInput} // nameInput Dom에 포커싱
       />
       <input
         name="email"

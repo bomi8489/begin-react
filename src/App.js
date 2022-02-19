@@ -7,9 +7,7 @@ function App() {
     username: '',
     email: ''
   });
-  
   const { username, email } = inputs;
-
   const onChange = e => {
     const { name, value } = e.target;
     setInputs({
@@ -17,7 +15,6 @@ function App() {
       [name]: value
     });
   };
-
   const [users, setUsers] = useState([
     {
       id: 1,
@@ -36,8 +33,9 @@ function App() {
     }
   ]);
 
-  const nextId = useRef(4);
-
+  const nameInput = useRef(); // nameInput Dom에 포커싱
+  const nextId = useRef(4); // 컴포넌트 변수 nextId 선언, 파라미터는 .current의 기본 값
+                            // .current 로 조회, 수정 가능
   const onCreate = () => {
     const user = {
       id: nextId.current,
@@ -51,8 +49,14 @@ function App() {
       email: ''
     });
     nextId.current += 1;
+    nameInput.current.focus();
   };
-  
+
+  const onRemove = id => {
+    // user.id 가 파라미터로 일치하지 않는 원소만 추출해서 새로운 배열을 만듬
+    // = user.id 가 id 인 것을 제거함
+    setUsers(users.filter(user => user.id !== id));
+  };
   return (
     <>
       <CreateUser
@@ -60,8 +64,9 @@ function App() {
         email={email}
         onChange={onChange}
         onCreate={onCreate}
+        nameInput={nameInput} // nameInput Dom에 포커싱
       />
-      <UserList users={users} />
+      <UserList users={users} onRemove={onRemove} />
     </>
   );
 }
